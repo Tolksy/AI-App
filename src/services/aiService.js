@@ -1,6 +1,9 @@
 // AI Service for generating intelligent scheduling suggestions
-// This is a mock AI service that simulates AI recommendations based on productivity research
+// Integrates with RAG-based backend for advanced AI capabilities
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1'
+
+// Legacy patterns for fallback
 const PRODUCTIVITY_PATTERNS = {
   morning: {
     bestHours: [9, 10, 11],
@@ -25,8 +28,57 @@ const BREAK_RECOMMENDATIONS = {
   long: { duration: 1.5, frequency: 'lunch break' }
 }
 
-// Generate AI suggestions based on current schedule
+// Generate AI suggestions using RAG backend
 export const getAISuggestions = async (selectedDate, existingBlocks) => {
+  try {
+    // Try to use the new RAG backend
+    const response = await fetch(`${API_BASE_URL}/scheduling/suggestions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        date: selectedDate.toISOString().split('T')[0],
+        current_blocks: existingBlocks.map(block => ({
+          id: block.id,
+          title: block.title,
+          category: block.category,
+          start_time: block.startTime,
+          end_time: block.endTime,
+          description: block.description,
+          date: selectedDate.toISOString().split('T')[0]
+        })),
+        goals: ['productivity', 'work_life_balance', 'efficiency']
+      })
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return data.map(suggestion => ({
+        type: suggestion.type,
+        title: suggestion.title,
+        description: suggestion.description,
+        blocks: suggestion.blocks.map(block => ({
+          title: block.title,
+          category: block.category,
+          startTime: block.start_time,
+          endTime: block.end_time,
+          description: block.description
+        })),
+        reasons: suggestion.reasons
+      }))
+    } else {
+      console.warn('RAG backend unavailable, using fallback suggestions')
+      return getFallbackSuggestions(existingBlocks)
+    }
+  } catch (error) {
+    console.warn('Error connecting to RAG backend, using fallback:', error)
+    return getFallbackSuggestions(existingBlocks)
+  }
+}
+
+// Fallback to original logic if backend is unavailable
+const getFallbackSuggestions = async (existingBlocks) => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1500))
   
@@ -62,6 +114,140 @@ export const getAISuggestions = async (selectedDate, existingBlocks) => {
   }
   
   return suggestions
+}
+
+// New RAG-powered chat function
+export const chatWithAI = async (message, conversationId = null, useRAG = true, useAgents = false) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/chat/message`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message,
+        conversation_id: conversationId,
+        use_rag: useRAG,
+        use_agents: useAgents,
+        context: {
+          app: 'ai-scheduler',
+          timestamp: new Date().toISOString()
+        }
+      })
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return {
+        response: data.response,
+        conversationId: data.conversation_id,
+        sources: data.sources || [],
+        agentActions: data.agent_actions || [],
+        confidence: data.confidence || 0
+      }
+    } else {
+      throw new Error(`API request failed: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('Error chatting with AI:', error)
+    return {
+      response: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later.",
+      conversationId: conversationId || 'fallback',
+      sources: [],
+      agentActions: [],
+      confidence: 0
+    }
+  }
+}
+
+// Document upload function
+export const uploadDocument = async (file) => {
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${API_BASE_URL}/documents/upload`, {
+      method: 'POST',
+      body: formData
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return {
+        success: true,
+        documentId: data.document_id,
+        filename: data.filename,
+        chunksProcessed: data.chunks_processed
+      }
+    } else {
+      throw new Error(`Upload failed: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('Error uploading document:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+}
+
+// Agent task execution
+export const executeAgentTask = async (task, agentType = 'general') => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/agents/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        task,
+        agent_type: agentType,
+        parameters: {}
+      })
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      return {
+        success: true,
+        taskId: data.task_id,
+        status: data.status,
+        result: data.result
+      }
+    } else {
+      throw new Error(`Agent execution failed: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('Error executing agent task:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+}
+
+// Search knowledge base
+export const searchKnowledgeBase = async (query, limit = 10) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/search?query=${encodeURIComponent(query)}&limit=${limit}`)
+
+    if (response.ok) {
+      const data = await response.json()
+      return {
+        success: true,
+        results: data.results,
+        totalFound: data.total_found
+      }
+    } else {
+      throw new Error(`Search failed: ${response.status}`)
+    }
+  } catch (error) {
+    console.error('Error searching knowledge base:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
 }
 
 // Analyze current schedule for patterns and opportunities
