@@ -6,6 +6,7 @@ import ScheduleModal from './components/ScheduleModal'
 import { generateTimeSlots, formatTime } from './utils/timeUtils'
 import { getAISuggestions } from './services/aiService'
 import { Calendar as CalendarIcon, Clock, Brain } from 'lucide-react'
+import SetupWizard from './components/SetupWizard'
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -144,6 +145,7 @@ function App() {
 
   return (
     <div className="container">
+      <SetupWizard />
       <header className="card glass-effect">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

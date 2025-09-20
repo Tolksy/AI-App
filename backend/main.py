@@ -1,5 +1,6 @@
 import os
 import json
+import secrets
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Request, Response, status
@@ -34,9 +35,64 @@ class HealthResponse(BaseModel):
 	version: str
 
 
+class ConfigResponse(BaseModel):
+	verify_token_set: bool
+	page_access_token_set: bool
+	graph_api_version: str
+
+
+class ConfigRequest(BaseModel):
+	verify_token: Optional[str] = None
+	page_access_token: Optional[str] = None
+	graph_api_version: Optional[str] = None
+
+
+class SendTestRequest(BaseModel):
+	recipient_id: str
+	text: str
+
+
 @app.get("/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
 	return HealthResponse(status="ok", version=GRAPH_API_VERSION)
+
+
+@app.get("/config", response_model=ConfigResponse)
+async def get_config() -> ConfigResponse:
+	return ConfigResponse(
+		verify_token_set=bool(VERIFY_TOKEN and VERIFY_TOKEN != "change-me"),
+		page_access_token_set=bool(PAGE_ACCESS_TOKEN),
+		graph_api_version=GRAPH_API_VERSION,
+	)
+
+
+@app.post("/config", response_model=ConfigResponse)
+async def set_config(cfg: ConfigRequest) -> ConfigResponse:
+	global VERIFY_TOKEN, PAGE_ACCESS_TOKEN, GRAPH_API_VERSION, ig_api
+	if cfg.verify_token:
+		VERIFY_TOKEN = cfg.verify_token
+	if cfg.page_access_token:
+		PAGE_ACCESS_TOKEN = cfg.page_access_token
+		ig_api.page_access_token = PAGE_ACCESS_TOKEN
+	if cfg.graph_api_version:
+		GRAPH_API_VERSION = cfg.graph_api_version
+		# Recreate API client to apply version change
+		ig_api = InstagramAPI(page_access_token=PAGE_ACCESS_TOKEN, graph_api_version=GRAPH_API_VERSION)
+	return await get_config()
+
+
+@app.get("/token/new")
+async def new_token() -> Dict[str, str]:
+	return {"verify_token": secrets.token_urlsafe(24)}
+
+
+@app.post("/test/send")
+async def test_send(body: SendTestRequest) -> Dict[str, Any]:
+	try:
+		await ig_api.send_text_message(recipient_id=body.recipient_id, text=body.text)
+		return {"ok": True}
+	except Exception as e:
+		return {"ok": False, "error": str(e)}
 
 
 @app.get("/webhook")
