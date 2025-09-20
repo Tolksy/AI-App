@@ -4,8 +4,8 @@
   "description": "AI-powered day scheduling and time blocking application",
   "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "dev:all": "concurrently -k \"bash -lc 'source /workspace/.venv/bin/activate && uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload'\" \"vite\"",
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "dev:all": "concurrently -k \"bash -lc 'source /workspace/.venv/bin/activate && uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload'\" \"vite --host 0.0.0.0 --port 5173\"",
     "build": "vite build",
     "preview": "vite preview",
     "start": "vite"
