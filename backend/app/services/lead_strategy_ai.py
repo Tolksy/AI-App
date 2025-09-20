@@ -705,3 +705,4 @@ Would you like me to start finding leads for this software right now?
                 "status": "error",
                 "message": "I encountered an error starting self-referential lead generation."
             }
+

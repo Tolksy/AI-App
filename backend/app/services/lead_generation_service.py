@@ -675,3 +675,4 @@ class LeadGenerationService:
         
         await self._add_lead(lead)
         return lead
+
