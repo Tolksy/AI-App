@@ -17,7 +17,9 @@ from app.core.database import init_db
 from app.services.rag_service import RAGService
 from app.services.agent_service import AgentService
 from app.services.document_service import DocumentService
-from app.api.routes import chat, documents, agents, scheduling
+from app.services.lead_generation_service import LeadGenerationService
+from app.services.lead_strategy_ai import LeadStrategyAI
+from app.api.routes import chat, documents, agents, scheduling, leads, strategy
 from app.middleware.auth import AuthMiddleware
 from app.core.logging_config import setup_logging
 
@@ -38,10 +40,21 @@ async def lifespan(app: FastAPI):
     app.state.rag_service = RAGService()
     app.state.agent_service = AgentService()
     app.state.document_service = DocumentService()
+    app.state.lead_generation_service = LeadGenerationService()
+    app.state.lead_strategy_ai = LeadStrategyAI()
     
     # Initialize vector stores and embeddings
     await app.state.rag_service.initialize()
     await app.state.agent_service.initialize()
+    await app.state.lead_generation_service.initialize(
+        app.state.rag_service, 
+        app.state.agent_service
+    )
+    await app.state.lead_strategy_ai.initialize(
+        app.state.rag_service,
+        app.state.agent_service,
+        app.state.lead_generation_service
+    )
     
     logger.info("✅ All services initialized successfully")
     
@@ -75,6 +88,8 @@ app.include_router(chat.router, prefix="/api/v1/chat", tags=["Chat"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["Documents"])
 app.include_router(agents.router, prefix="/api/v1/agents", tags=["Agents"])
 app.include_router(scheduling.router, prefix="/api/v1/scheduling", tags=["Scheduling"])
+app.include_router(leads.router, prefix="/api/v1/leads", tags=["Lead Generation"])
+app.include_router(strategy.router, prefix="/api/v1/strategy", tags=["Strategy AI"])
 
 
 # Pydantic models for API requests/responses

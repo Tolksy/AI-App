@@ -3,9 +3,11 @@ import Calendar from './components/Calendar'
 import TimeBlock from './components/TimeBlock'
 import AIAssistant from './components/AIAssistant'
 import ScheduleModal from './components/ScheduleModal'
+import LeadDashboard from './components/LeadDashboard'
+import StrategyAI from './components/StrategyAI'
 import { generateTimeSlots, formatTime } from './utils/timeUtils'
 import { getAISuggestions } from './services/aiService'
-import { Calendar as CalendarIcon, Clock, Brain } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, Brain, Users, Target } from 'lucide-react'
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -14,6 +16,7 @@ function App() {
   const [editingBlock, setEditingBlock] = useState(null)
   const [aiSuggestions, setAiSuggestions] = useState([])
   const [isLoadingAI, setIsLoadingAI] = useState(false)
+  const [activeTab, setActiveTab] = useState('strategy') // 'scheduler', 'leads', or 'strategy'
 
   const timeSlots = generateTimeSlots()
 
@@ -148,75 +151,97 @@ function App() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <CalendarIcon size={32} color="#667eea" />
+              <Target size={32} color="#667eea" />
               <h1 style={{ fontSize: '28px', fontWeight: '700', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                AI Scheduler
+                AI Lead Generator
               </h1>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b' }}>
-              <Clock size={20} />
+              <Users size={20} />
               <span style={{ fontSize: '14px', fontWeight: '500' }}>
-                {selectedDate.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
+                Autonomous Lead Generation
               </span>
             </div>
           </div>
-          <button 
-            className="btn btn-primary"
-            onClick={generateAISuggestions}
-            disabled={isLoadingAI}
-          >
-            <Brain size={16} />
-            {isLoadingAI ? 'Generating...' : 'Get AI Help'}
-          </button>
+          
+          {/* Tab Navigation */}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              className={`btn ${activeTab === 'strategy' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('strategy')}
+            >
+              <Brain size={16} />
+              Strategy AI
+            </button>
+            <button 
+              className={`btn ${activeTab === 'leads' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('leads')}
+            >
+              <Users size={16} />
+              Leads
+            </button>
+            <button 
+              className={`btn ${activeTab === 'scheduler' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('scheduler')}
+            >
+              <CalendarIcon size={16} />
+              Scheduler
+            </button>
+          </div>
         </div>
       </header>
 
-      <div className="calendar-container">
-        <div className="card">
-          <h2 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CalendarIcon size={20} />
-            Calendar
-          </h2>
-          <Calendar 
-            selectedDate={selectedDate}
-            onDateSelect={handleDateSelect}
-            timeBlocks={timeBlocks}
-          />
+      {activeTab === 'strategy' ? (
+        <div className="h-screen">
+          <StrategyAI />
         </div>
+      ) : activeTab === 'leads' ? (
+        <LeadDashboard />
+      ) : (
+        <>
+          <div className="calendar-container">
+            <div className="card">
+              <h2 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CalendarIcon size={20} />
+                Calendar
+              </h2>
+              <Calendar 
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+                timeBlocks={timeBlocks}
+              />
+            </div>
 
-        <div className="card">
-          <h2 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Clock size={20} />
-            Daily Schedule
-          </h2>
-          <TimeBlock
-            selectedDate={selectedDate}
-            timeSlots={timeSlots}
-            timeBlocks={timeBlocks}
-            onTimeSlotClick={handleTimeSlotClick}
-            onEditBlock={handleEditBlock}
-            onDeleteBlock={handleDeleteBlock}
-          />
-        </div>
-      </div>
+            <div className="card">
+              <h2 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={20} />
+                Daily Schedule
+              </h2>
+              <TimeBlock
+                selectedDate={selectedDate}
+                timeSlots={timeSlots}
+                timeBlocks={timeBlocks}
+                onTimeSlotClick={handleTimeSlotClick}
+                onEditBlock={handleEditBlock}
+                onDeleteBlock={handleDeleteBlock}
+              />
+            </div>
+          </div>
 
-      <div className="card">
-        <h2 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Brain size={20} />
-          AI Assistant
-        </h2>
-        <AIAssistant
-          selectedDate={selectedDate}
-          suggestions={aiSuggestions}
-          onApplySuggestion={applyAISuggestion}
-          isLoading={isLoadingAI}
-        />
-      </div>
+          <div className="card">
+            <h2 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Brain size={20} />
+              AI Assistant
+            </h2>
+            <AIAssistant
+              selectedDate={selectedDate}
+              suggestions={aiSuggestions}
+              onApplySuggestion={applyAISuggestion}
+              isLoading={isLoadingAI}
+            />
+          </div>
+        </>
+      )}
 
       {showModal && (
         <ScheduleModal
