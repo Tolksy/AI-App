@@ -12,6 +12,7 @@ import {
   XCircle,
   AlertCircle
 } from 'lucide-react';
+import { buildApiUrl } from '../config/api';
 
 const RealTimeAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
@@ -27,7 +28,7 @@ const RealTimeAnalytics = () => {
 
   const fetchAnalyticsData = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/analytics/dashboard');
+      const response = await fetch(buildApiUrl('/api/v1/analytics/dashboard'));
       if (response.ok) {
         const data = await response.json();
         setAnalyticsData(data);
@@ -45,7 +46,7 @@ const RealTimeAnalytics = () => {
 
   const fetchRealTimeMetrics = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/analytics/real-time');
+      const response = await fetch(buildApiUrl('/api/v1/analytics/real-time'));
       if (response.ok) {
         const data = await response.json();
         setRealTimeMetrics(data);

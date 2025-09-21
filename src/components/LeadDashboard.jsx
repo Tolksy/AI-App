@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Users, TrendingUp, Target, Mail, Phone, Linkedin, Filter, Download, Plus, Eye, Edit, Trash2 } from 'lucide-react'
+import { buildApiUrl } from '../config/api'
 
 const LeadDashboard = () => {
   const [leads, setLeads] = useState([])
@@ -67,7 +68,7 @@ const LeadDashboard = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/leads/')
+      const response = await fetch(buildApiUrl('/api/v1/leads/'))
       const data = await response.json()
       setLeads(data)
     } catch (error) {
@@ -93,7 +94,7 @@ const LeadDashboard = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/leads/stats/overview')
+      const response = await fetch(buildApiUrl('/api/v1/leads/stats/overview'))
       const data = await response.json()
       setStats(data)
     } catch (error) {

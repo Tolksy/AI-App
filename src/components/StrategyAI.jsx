@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Send, Bot, User, Lightbulb, Target, TrendingUp, Brain, MessageCircle } from 'lucide-react'
+import { buildApiUrl } from '../config/api'
 
 // Intelligent AI responses that act as an autonomous agent
 const getFallbackStrategyResponse = (message, conversationHistory = []) => {
@@ -312,7 +313,7 @@ What's your business? I'll start generating leads immediately!`,
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/strategy/chat', {
+      const response = await fetch(buildApiUrl('/api/v1/strategy/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -379,7 +380,7 @@ What's your business? I'll start generating leads immediately!`,
     
     if (!isProduction) {
       try {
-        await fetch('http://localhost:8000/api/v1/strategy/conversation/clear', {
+        await fetch(buildApiUrl('/api/v1/strategy/conversation/clear'), {
           method: 'DELETE'
         })
       } catch (error) {

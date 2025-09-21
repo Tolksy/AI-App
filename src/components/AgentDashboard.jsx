@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Activity, Clock, CheckCircle, XCircle, AlertCircle, Play, Pause, RefreshCw } from 'lucide-react'
+import { buildApiUrl } from '../config/api'
 
 const AgentDashboard = () => {
   const [activeTasks, setActiveTasks] = useState([])
@@ -20,9 +21,9 @@ const AgentDashboard = () => {
   const fetchTaskData = async () => {
     try {
       const [activeResponse, historyResponse, statsResponse] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/agent/tasks/active'),
-        fetch('http://localhost:8000/api/v1/agent/tasks/history?limit=20'),
-        fetch('http://localhost:8000/api/v1/agent/tasks/stats')
+        fetch(buildApiUrl('/api/v1/agent/tasks/active')),
+        fetch(buildApiUrl('/api/v1/agent/tasks/history?limit=20')),
+        fetch(buildApiUrl('/api/v1/agent/tasks/stats'))
       ])
 
       if (activeResponse.ok) {
@@ -278,7 +279,7 @@ const AgentDashboard = () => {
           <button
             onClick={async () => {
               try {
-                const response = await fetch('http://localhost:8000/api/v1/agent/linkedin/search', {
+                const response = await fetch(buildApiUrl('/api/v1/agent/linkedin/search'), {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -304,7 +305,7 @@ const AgentDashboard = () => {
           <button
             onClick={async () => {
               try {
-                const response = await fetch('http://localhost:8000/api/v1/agent/research/company', {
+                const response = await fetch(buildApiUrl('/api/v1/agent/research/company'), {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -329,7 +330,7 @@ const AgentDashboard = () => {
           <button
             onClick={async () => {
               try {
-                const response = await fetch('http://localhost:8000/api/v1/agent/email/send', {
+                const response = await fetch(buildApiUrl('/api/v1/agent/email/send'), {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
@@ -356,7 +357,7 @@ const AgentDashboard = () => {
           <button
             onClick={async () => {
               try {
-                const response = await fetch('http://localhost:8000/api/v1/agent/score-lead', {
+                const response = await fetch(buildApiUrl('/api/v1/agent/score-lead'), {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
