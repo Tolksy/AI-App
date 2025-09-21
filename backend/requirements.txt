@@ -22,6 +22,5 @@ beautifulsoup4==4.12.2
 lxml==4.9.3
 requests==2.31.0
 
-# Database
-sqlite3
+# Database (sqlite3 is built into Python, no need to install)
 
