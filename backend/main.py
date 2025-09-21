@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
-    logger.info("🚀 Starting RAG-based Agentic AI System")
+    logger.info("🚀 Starting RAG-based Agentic AI System - Updated")
     
     # Initialize database
     await init_db()
