@@ -19,6 +19,53 @@ const LeadDashboard = () => {
   }, [])
 
   const fetchLeads = async () => {
+    const isProduction = process.env.NODE_ENV === 'production' && !window.location.hostname.includes('localhost')
+    
+    if (isProduction) {
+      // Use mock data in production
+      const mockLeads = [
+        {
+          id: 1,
+          name: "Sarah Johnson",
+          company: "TechCorp Solutions",
+          email: "sarah@techcorp.com",
+          phone: "+1-555-0123",
+          status: "qualified",
+          source: "linkedin",
+          score: 85.5,
+          created_at: "2024-01-15",
+          tags: ["SaaS", "Enterprise", "High Value"]
+        },
+        {
+          id: 2,
+          name: "Mike Chen",
+          company: "AutoDeal Motors",
+          email: "mike@autodeal.com",
+          phone: "+1-555-0456",
+          status: "contacted",
+          source: "google_my_business",
+          score: 72.3,
+          created_at: "2024-01-14",
+          tags: ["Automotive", "Local Business", "Service"]
+        },
+        {
+          id: 3,
+          name: "Emily Rodriguez",
+          company: "HealthFirst Clinic",
+          email: "emily@healthfirst.com",
+          phone: "+1-555-0789",
+          status: "new",
+          source: "web_scraping",
+          score: 68.7,
+          created_at: "2024-01-13",
+          tags: ["Healthcare", "Medical", "Local"]
+        }
+      ]
+      setLeads(mockLeads)
+      setLoading(false)
+      return
+    }
+
     try {
       const response = await fetch('http://localhost:8000/api/v1/leads/')
       const data = await response.json()
@@ -31,6 +78,20 @@ const LeadDashboard = () => {
   }
 
   const fetchStats = async () => {
+    const isProduction = process.env.NODE_ENV === 'production' && !window.location.hostname.includes('localhost')
+    
+    if (isProduction) {
+      // Use mock stats in production
+      const mockStats = {
+        total_leads: 247,
+        qualified_leads: 89,
+        contacted_leads: 156,
+        conversion_rate: 12.4
+      }
+      setStats(mockStats)
+      return
+    }
+
     try {
       const response = await fetch('http://localhost:8000/api/v1/leads/stats/overview')
       const data = await response.json()
