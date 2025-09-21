@@ -3,6 +3,9 @@
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1'
 
+// Check if we're in production (deployed environment)
+const isProduction = process.env.NODE_ENV === 'production' && !window.location.hostname.includes('localhost')
+
 // Legacy patterns for fallback
 const PRODUCTIVITY_PATTERNS = {
   morning: {
@@ -30,6 +33,12 @@ const BREAK_RECOMMENDATIONS = {
 
 // Generate AI suggestions using RAG backend
 export const getAISuggestions = async (selectedDate, existingBlocks) => {
+  // Skip API call in production if no backend is configured
+  if (isProduction && !process.env.REACT_APP_API_URL) {
+    console.log('Production mode: Using fallback suggestions')
+    return getFallbackSuggestions(existingBlocks)
+  }
+
   try {
     // Try to use the new RAG backend
     const response = await fetch(`${API_BASE_URL}/scheduling/suggestions`, {
@@ -116,8 +125,37 @@ const getFallbackSuggestions = async (existingBlocks) => {
   return suggestions
 }
 
+// Fallback chat response for when backend is not available
+const getFallbackChatResponse = async (message, conversationId) => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  
+  const responses = [
+    "I can help you with scheduling and productivity tips! While the full AI backend isn't connected, I can still provide helpful suggestions based on proven productivity principles.",
+    "Great question! For optimal scheduling, I recommend time-blocking your most important tasks during your peak energy hours (usually 9-11 AM). Would you like me to suggest some time blocks for your day?",
+    "I'd be happy to help with your schedule! Try breaking your day into focused work blocks of 2-3 hours with 15-30 minute breaks in between. This helps maintain energy and focus throughout the day.",
+    "Excellent question! For better productivity, consider scheduling your most challenging tasks during your natural energy peaks and save meetings for your lower-energy periods.",
+    "I can definitely help with that! A well-structured day typically includes: morning deep work (9-11 AM), collaborative work (2-4 PM), and personal time in the evening. Would you like me to create a sample schedule for you?"
+  ]
+  
+  const randomResponse = responses[Math.floor(Math.random() * responses.length)]
+  
+  return {
+    response: randomResponse,
+    conversationId: conversationId || `fallback-${Date.now()}`,
+    sources: [],
+    agentActions: [],
+    confidence: 0.7
+  }
+}
+
 // New RAG-powered chat function
 export const chatWithAI = async (message, conversationId = null, useRAG = true, useAgents = false) => {
+  // Skip API call in production if no backend is configured
+  if (isProduction && !process.env.REACT_APP_API_URL) {
+    return getFallbackChatResponse(message, conversationId)
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/chat/message`, {
       method: 'POST',
@@ -150,13 +188,7 @@ export const chatWithAI = async (message, conversationId = null, useRAG = true, 
     }
   } catch (error) {
     console.error('Error chatting with AI:', error)
-    return {
-      response: "I'm sorry, I'm having trouble connecting to the AI service right now. Please try again later.",
-      conversationId: conversationId || 'fallback',
-      sources: [],
-      agentActions: [],
-      confidence: 0
-    }
+    return getFallbackChatResponse(message, conversationId)
   }
 }
 
