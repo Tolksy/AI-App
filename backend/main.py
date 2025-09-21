@@ -12,16 +12,9 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
-from app.core.config import settings
-from app.core.database import init_db
-from app.services.rag_service import RAGService
-from app.services.agent_service import AgentService
-from app.services.document_service import DocumentService
-from app.services.lead_generation_service import LeadGenerationService
-from app.services.lead_strategy_ai import LeadStrategyAI
-from app.api.routes import chat, documents, agents, scheduling, leads, strategy
-from app.middleware.auth import AuthMiddleware
-from app.core.logging_config import setup_logging
+# Simplified imports for basic deployment
+import os
+from typing import Dict, Any
 
 # Setup logging
 setup_logging()
