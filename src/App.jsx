@@ -5,9 +5,10 @@ import AIAssistant from './components/AIAssistant'
 import ScheduleModal from './components/ScheduleModal'
 import LeadDashboard from './components/LeadDashboard'
 import StrategyAI from './components/StrategyAI'
+import AgentDashboard from './components/AgentDashboard'
 import { generateTimeSlots, formatTime } from './utils/timeUtils'
 import { getAISuggestions } from './services/aiService'
-import { Calendar as CalendarIcon, Clock, Brain, Users, Target } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, Brain, Users, Target, Activity } from 'lucide-react'
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -16,7 +17,7 @@ function App() {
   const [editingBlock, setEditingBlock] = useState(null)
   const [aiSuggestions, setAiSuggestions] = useState([])
   const [isLoadingAI, setIsLoadingAI] = useState(false)
-  const [activeTab, setActiveTab] = useState('strategy') // 'scheduler', 'leads', or 'strategy'
+  const [activeTab, setActiveTab] = useState('strategy') // 'scheduler', 'leads', 'strategy', or 'agent'
 
   const timeSlots = generateTimeSlots()
 
@@ -174,6 +175,13 @@ function App() {
               Strategy AI
             </button>
             <button 
+              className={`btn ${activeTab === 'agent' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('agent')}
+            >
+              <Activity size={16} />
+              Agent Tasks
+            </button>
+            <button 
               className={`btn ${activeTab === 'leads' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('leads')}
             >
@@ -195,6 +203,8 @@ function App() {
         <div className="h-screen">
           <StrategyAI />
         </div>
+      ) : activeTab === 'agent' ? (
+        <AgentDashboard />
       ) : activeTab === 'leads' ? (
         <LeadDashboard />
       ) : (
