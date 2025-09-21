@@ -274,34 +274,115 @@ const AgentDashboard = () => {
       {/* Quick Actions */}
       <div className="mt-8 bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
-            onClick={() => {
-              // This would trigger a real agent task
-              console.log('Starting company research...')
+            onClick={async () => {
+              try {
+                const response = await fetch('http://localhost:8000/api/v1/agent/linkedin/search', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    search_query: 'AI software companies',
+                    industry: 'technology',
+                    company_size: '51-200'
+                  })
+                });
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log('LinkedIn search completed:', result);
+                  fetchTaskData(); // Refresh the dashboard
+                }
+              } catch (error) {
+                console.error('LinkedIn search error:', error);
+              }
             }}
             className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Activity className="w-5 h-5" />
-            Research Company
+            LinkedIn Search
           </button>
           <button
-            onClick={() => {
-              console.log('Starting website scraping...')
+            onClick={async () => {
+              try {
+                const response = await fetch('http://localhost:8000/api/v1/agent/research/company', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    company_name: 'TechCorp Solutions',
+                    industry: 'technology'
+                  })
+                });
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log('Company research completed:', result);
+                  fetchTaskData();
+                }
+              } catch (error) {
+                console.error('Company research error:', error);
+              }
             }}
             className="flex items-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
           >
             <RefreshCw className="w-5 h-5" />
-            Scrape Website
+            Research Company
           </button>
           <button
-            onClick={() => {
-              console.log('Starting email outreach...')
+            onClick={async () => {
+              try {
+                const response = await fetch('http://localhost:8000/api/v1/agent/email/send', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    to_email: 'test@example.com',
+                    company_name: 'TechCorp Solutions',
+                    contact_name: 'John Doe',
+                    industry: 'technology'
+                  })
+                });
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log('Email sent:', result);
+                  fetchTaskData();
+                }
+              } catch (error) {
+                console.error('Email sending error:', error);
+              }
             }}
             className="flex items-center gap-2 px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
           >
             <CheckCircle className="w-5 h-5" />
-            Send Outreach Email
+            Send Email
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                const response = await fetch('http://localhost:8000/api/v1/agent/score-lead', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    lead_data: {
+                      name: 'Jane Smith',
+                      email: 'jane@techcorp.com',
+                      company: 'TechCorp Solutions',
+                      title: 'CTO',
+                      industry: 'technology',
+                      company_size: '51-200'
+                    }
+                  })
+                });
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log('Lead scored:', result);
+                  fetchTaskData();
+                }
+              } catch (error) {
+                console.error('Lead scoring error:', error);
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+          >
+            <Activity className="w-5 h-5" />
+            Score Lead
           </button>
         </div>
       </div>

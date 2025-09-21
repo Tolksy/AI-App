@@ -41,6 +41,9 @@ leads_database = []
 from agent_tasks import TaskTracker, task_tracker, TaskType, TaskStatus
 from web_scraper import WebScrapingAgent, LeadResearchAgent
 from email_automation import EmailAutomationAgent, EmailSequenceManager
+from linkedin_integration import LinkedInAgent, linkedin_agent
+from lead_scoring import LeadScoringAgent, lead_scorer
+from analytics_engine import AnalyticsEngine, analytics_engine
 
 # Initialize real agents
 web_scraper = WebScrapingAgent()
@@ -643,15 +646,133 @@ async def send_bulk_emails(leads: List[Dict[str, Any]], delay_seconds: int = 30)
         logger.error(f"Bulk email error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/v1/agent/sequence/start")
-async def start_email_sequence(lead_data: Dict[str, Any], sequence_type: str = "standard"):
-    """Start an automated email sequence for a lead"""
-    try:
-        result = await email_sequences.start_lead_sequence(lead_data, sequence_type)
-        return result
-    except Exception as e:
-        logger.error(f"Email sequence error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+    @app.post("/api/v1/agent/sequence/start")
+    async def start_email_sequence(lead_data: Dict[str, Any], sequence_type: str = "standard"):
+        """Start an automated email sequence for a lead"""
+        try:
+            result = await email_sequences.start_lead_sequence(lead_data, sequence_type)
+            return result
+        except Exception as e:
+            logger.error(f"Email sequence error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    # LinkedIn Integration Endpoints
+    @app.post("/api/v1/agent/linkedin/search")
+    async def linkedin_search_prospects(
+        search_query: str,
+        industry: str = None,
+        location: str = None,
+        company_size: str = None
+    ):
+        """Search for prospects on LinkedIn"""
+        try:
+            result = await linkedin_agent.search_prospects(search_query, industry, location, company_size)
+            return result
+        except Exception as e:
+            logger.error(f"LinkedIn search error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/api/v1/agent/linkedin/company/{company_name}")
+    async def linkedin_company_info(company_name: str):
+        """Get detailed company information from LinkedIn"""
+        try:
+            result = await linkedin_agent.get_company_info(company_name)
+            return result
+        except Exception as e:
+            logger.error(f"LinkedIn company lookup error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/api/v1/agent/linkedin/employees/{company_name}")
+    async def linkedin_employee_list(company_name: str, job_titles: List[str] = None):
+        """Get list of employees from a company"""
+        try:
+            result = await linkedin_agent.get_employee_list(company_name, job_titles)
+            return result
+        except Exception as e:
+            logger.error(f"LinkedIn employee lookup error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    # Lead Scoring Endpoints
+    @app.post("/api/v1/agent/score-lead")
+    async def score_lead(lead_data: Dict[str, Any], ideal_customer_profile: Dict[str, Any] = None):
+        """Score a lead using AI-powered qualification"""
+        try:
+            result = await lead_scorer.score_lead(lead_data, ideal_customer_profile)
+            return result.__dict__
+        except Exception as e:
+            logger.error(f"Lead scoring error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/api/v1/agent/score-bulk-leads")
+    async def score_bulk_leads(leads: List[Dict[str, Any]], ideal_customer_profile: Dict[str, Any] = None):
+        """Score multiple leads in batch"""
+        try:
+            scored_leads = []
+            for lead in leads:
+                score_result = await lead_scorer.score_lead(lead, ideal_customer_profile)
+                scored_leads.append({
+                    "lead": lead,
+                    "score": score_result.__dict__
+                })
+            return {
+                "status": "completed",
+                "total_leads": len(leads),
+                "scored_leads": scored_leads
+            }
+        except Exception as e:
+            logger.error(f"Bulk lead scoring error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    # Analytics and Reporting Endpoints
+    @app.get("/api/v1/analytics/performance-report")
+    async def get_performance_report(
+        start_date: str = None,
+        end_date: str = None
+    ):
+        """Get comprehensive performance analytics report"""
+        try:
+            start_dt = datetime.fromisoformat(start_date) if start_date else None
+            end_dt = datetime.fromisoformat(end_date) if end_date else None
+            result = await analytics_engine.generate_performance_report(start_dt, end_dt)
+            return result
+        except Exception as e:
+            logger.error(f"Analytics report error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/api/v1/analytics/real-time")
+    async def get_real_time_metrics():
+        """Get real-time performance metrics"""
+        try:
+            result = await analytics_engine.track_real_time_metrics()
+            return result
+        except Exception as e:
+            logger.error(f"Real-time metrics error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/api/v1/analytics/dashboard")
+    async def get_analytics_dashboard():
+        """Get comprehensive analytics dashboard data"""
+        try:
+            # Get real-time metrics
+            real_time = await analytics_engine.track_real_time_metrics()
+            
+            # Get performance report for last 30 days
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=30)
+            performance = await analytics_engine.generate_performance_report(start_date, end_date)
+            
+            # Get task statistics
+            task_stats = task_tracker.get_task_stats()
+            
+            return {
+                "real_time_metrics": real_time,
+                "performance_report": performance,
+                "task_statistics": task_stats,
+                "generated_at": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.error(f"Analytics dashboard error: {str(e)}")
+            raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

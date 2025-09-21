@@ -6,9 +6,10 @@ import ScheduleModal from './components/ScheduleModal'
 import LeadDashboard from './components/LeadDashboard'
 import StrategyAI from './components/StrategyAI'
 import AgentDashboard from './components/AgentDashboard'
+import RealTimeAnalytics from './components/RealTimeAnalytics'
 import { generateTimeSlots, formatTime } from './utils/timeUtils'
 import { getAISuggestions } from './services/aiService'
-import { Calendar as CalendarIcon, Clock, Brain, Users, Target, Activity } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, Brain, Users, Target, Activity, BarChart3 } from 'lucide-react'
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -182,6 +183,13 @@ function App() {
               Agent Tasks
             </button>
             <button 
+              className={`btn ${activeTab === 'analytics' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('analytics')}
+            >
+              <BarChart3 size={16} />
+              Analytics
+            </button>
+            <button 
               className={`btn ${activeTab === 'leads' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setActiveTab('leads')}
             >
@@ -205,6 +213,8 @@ function App() {
         </div>
       ) : activeTab === 'agent' ? (
         <AgentDashboard />
+      ) : activeTab === 'analytics' ? (
+        <RealTimeAnalytics />
       ) : activeTab === 'leads' ? (
         <LeadDashboard />
       ) : (
