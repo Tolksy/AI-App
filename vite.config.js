@@ -7,7 +7,7 @@ export default defineConfig({
     port: 3000,
     open: true
   },
-  base: '/AI-App/', // GitHub Pages base path
+  // base: '/AI-App/', // GitHub Pages base path - commented out for debugging
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
