@@ -776,10 +776,19 @@ async def send_bulk_emails(leads: List[Dict[str, Any]], delay_seconds: int = 30)
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+    
+    # Get port from environment variable (for Railway/Heroku deployment)
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    
+    # Disable reload in production
+    reload = os.environ.get("ENVIRONMENT", "development") == "development"
+    
     uvicorn.run(
         "smart_main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
+        host=host,
+        port=port,
+        reload=reload,
         log_level="info"
     )
