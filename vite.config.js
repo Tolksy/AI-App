@@ -6,5 +6,10 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true
+  },
+  base: '/AI-App/', // GitHub Pages base path
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets'
   }
 })

@@ -6,7 +6,7 @@ const API_CONFIG = {
   },
   production: {
     backendUrl: 'https://ai-app-backend.onrender.com', // Render backend URL
-    frontendUrl: 'https://superleadman.netlify.app' // Netlify frontend URL
+    frontendUrl: 'https://tolksy.github.io/AI-App' // GitHub Pages frontend URL
   }
 }
 
