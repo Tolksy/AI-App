@@ -7,16 +7,9 @@ export default defineConfig({
     port: 3000,
     open: true
   },
-  base: '/AI-App/', // GitHub Pages base path
+  base: '/AI-App/',
   build: {
     outDir: 'dist',
-    assetsDir: 'assets',
-    rollupOptions: {
-      output: {
-        assetFileNames: 'assets/[name]-[hash][extname]',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js'
-      }
-    }
+    assetsDir: 'assets'
   }
 })
