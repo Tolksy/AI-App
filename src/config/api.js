@@ -5,8 +5,8 @@ const API_CONFIG = {
     frontendUrl: 'http://localhost:3000'
   },
   production: {
-    backendUrl: 'https://your-backend-url.herokuapp.com', // Will be updated when backend is deployed
-    frontendUrl: 'https://your-netlify-app.netlify.app' // Will be updated when frontend is deployed
+    backendUrl: 'https://ai-app-backend.onrender.com', // Render backend URL
+    frontendUrl: 'https://superleadman.netlify.app' // Netlify frontend URL
   }
 }
 

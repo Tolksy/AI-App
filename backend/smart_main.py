@@ -37,13 +37,35 @@ app.add_middleware(
 conversations = {}
 leads_database = []
 
-# Import real agent systems
-from agent_tasks import TaskTracker, task_tracker, TaskType, TaskStatus
-from web_scraper import WebScrapingAgent, LeadResearchAgent
-from email_automation import EmailAutomationAgent, EmailSequenceManager
-from linkedin_integration import LinkedInAgent, linkedin_agent
-from lead_scoring import LeadScoringAgent, lead_scorer
-from analytics_engine import AnalyticsEngine, analytics_engine
+# Import real agent systems with error handling
+try:
+    from agent_tasks import TaskTracker, task_tracker, TaskType, TaskStatus
+    from web_scraper import WebScrapingAgent, LeadResearchAgent
+    from email_automation import EmailAutomationAgent, EmailSequenceManager
+    from linkedin_integration import LinkedInAgent, linkedin_agent
+    from lead_scoring import LeadScoringAgent, lead_scorer
+    from analytics_engine import AnalyticsEngine, analytics_engine
+    AGENTS_AVAILABLE = True
+    logger.info("✅ All agent systems loaded successfully")
+except Exception as e:
+    logger.warning(f"⚠️ Some agent systems failed to load: {e}")
+    AGENTS_AVAILABLE = False
+    
+    # Create dummy classes for fallback
+    class DummyAgent:
+        def __init__(self, *args, **kwargs): pass
+        async def __aenter__(self): return self
+        async def __aexit__(self, *args): pass
+        async def __call__(self, *args, **kwargs): return {"status": "demo_mode", "message": "Agent system not available"}
+    
+    task_tracker = DummyAgent()
+    linkedin_agent = DummyAgent()
+    lead_scorer = DummyAgent()
+    analytics_engine = DummyAgent()
+    web_scraper = DummyAgent()
+    lead_researcher = DummyAgent()
+    email_agent = DummyAgent()
+    email_sequences = DummyAgent()
 
 # Initialize real agents
 web_scraper = WebScrapingAgent()
@@ -778,12 +800,15 @@ if __name__ == "__main__":
     import uvicorn
     import os
     
-    # Get port from environment variable (for Railway/Heroku deployment)
+    # Get port from environment variable (for Render deployment)
     port = int(os.environ.get("PORT", 8000))
-    host = os.environ.get("HOST", "0.0.0.0")
+    host = "0.0.0.0"  # Render requires 0.0.0.0
     
     # Disable reload in production
     reload = os.environ.get("ENVIRONMENT", "development") == "development"
+    
+    logger.info(f"🚀 Starting Smart AI Lead Generation Agent on {host}:{port}")
+    logger.info(f"📊 Environment: {os.environ.get('ENVIRONMENT', 'development')}")
     
     uvicorn.run(
         "smart_main:app",
