@@ -3,7 +3,7 @@ Smart AI Lead Generation Agent - FastAPI Backend
 Provides intelligent, articulate conversations and autonomous lead generation
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
@@ -12,6 +12,12 @@ import logging
 import json
 from datetime import datetime, timedelta
 import random
+import os
+
+# Import services
+from app.services.rag_service import RAGService
+from app.services.agent_service import AgentService
+from app.services.document_service import DocumentService
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +39,40 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# In-memory storage for demo
+conversations = {}
+leads_database = []
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    try:
+        logger.info("🚀 Initializing AI Lead Generation Agent services...")
+
+        # Initialize RAG service
+        rag_service = RAGService()
+        await rag_service.initialize()
+
+        # Initialize Agent service
+        agent_service = AgentService()
+        await agent_service.initialize()
+
+        # Initialize Document service
+        document_service = DocumentService()
+        await document_service.initialize(rag_service)
+
+        # Attach to app state
+        app.state.rag_service = rag_service
+        app.state.agent_service = agent_service
+        app.state.document_service = document_service
+
+        logger.info("✅ All services initialized successfully")
+
+    except Exception as e:
+        logger.error(f"❌ Error initializing services: {str(e)}")
+        raise
 
 # In-memory storage for demo
 conversations = {}
@@ -74,6 +114,24 @@ class AgentTaskResponse(BaseModel):
     status: str
     result: Optional[Dict[str, Any]] = None
     steps_completed: List[str]
+
+
+class SocialMediaRequest(BaseModel):
+    content_type: str = "post"  # post, article, update
+    topic: str
+    platform: str = "linkedin"
+    tone: str = "professional"
+    length: str = "medium"
+    include_hashtags: bool = True
+    scheduled_time: Optional[str] = None
+
+
+class SocialMediaResponse(BaseModel):
+    content: str
+    hashtags: List[str]
+    optimal_time: str
+    engagement_prediction: Dict[str, Any]
+    post_id: Optional[str] = None
 
 
 # Health check endpoint
@@ -210,21 +268,74 @@ async def search_knowledge_base(
     """
     try:
         rag_service: RAGService = app.state.rag_service
-        
+
         results = await rag_service.search_documents(
             query=query,
             limit=limit,
             threshold=similarity_threshold
         )
-        
+
         return {
             "query": query,
             "results": results,
             "total_found": len(results)
         }
-        
+
     except Exception as e:
         logger.error(f"Error searching knowledge base: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Social media content creation endpoint
+@app.post("/api/v1/social-media/create", response_model=SocialMediaResponse)
+async def create_social_media_content(
+    request: SocialMediaRequest,
+    background_tasks: BackgroundTasks
+):
+    """
+    Create and optionally post social media content using AI agents
+    """
+    try:
+        agent_service: AgentService = app.state.agent_service
+
+        # Create the task for the social media agent
+        task = f"""Create a {request.tone} {request.content_type} about {request.topic} for {request.platform}.
+        Make it {request.length} length and {'include relevant hashtags' if request.include_hashtags else 'do not include hashtags'}.
+        {'Schedule for posting at ' + request.scheduled_time if request.scheduled_time else 'Post immediately'}."""
+
+        # Execute the task using the social media agent
+        result = await agent_service.execute_task(
+            task=task,
+            agent_type="social_media",
+            context={
+                "platform": request.platform,
+                "tone": request.tone,
+                "length": request.length,
+                "include_hashtags": request.include_hashtags,
+                "scheduled_time": request.scheduled_time
+            }
+        )
+
+        # Parse the result to extract content and metadata
+        response_content = result.get("response", "")
+        hashtags = ["#business", "#entrepreneurship", "#growth"]  # Default hashtags
+        optimal_time = "9:00 AM - 11:00 AM EST"  # Default optimal time
+        engagement_prediction = {
+            "likes": "50-100",
+            "comments": "10-25",
+            "shares": "5-15",
+            "reach": "500-1000"
+        }
+
+        return SocialMediaResponse(
+            content=response_content,
+            hashtags=hashtags,
+            optimal_time=optimal_time,
+            engagement_prediction=engagement_prediction
+        )
+
+    except Exception as e:
+        logger.error(f"Error creating social media content: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

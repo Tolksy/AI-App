@@ -10,10 +10,9 @@ from datetime import datetime
 import json
 
 from crewai import Agent, Task, Crew, Process
-from crewai.tools import BaseTool
 from langchain.tools import tool
-from langchain.llms import OpenAI
-from langchain.chat_models import ChatOpenAI
+from langchain_community.llms import OpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import HumanMessage, SystemMessage
@@ -135,7 +134,21 @@ class AgentService:
                 tools=self._get_document_tools(),
                 llm=self.llm
             )
-            
+
+            # Social Media Agent
+            self.agents["social_media"] = Agent(
+                role="Social Media Content Creator and Manager",
+                goal="Create engaging content and manage social media presence",
+                backstory="""You are a social media expert who creates compelling content,
+                optimizes posts for engagement, researches trending topics, and manages
+                posting schedules across platforms. You excel at understanding audience
+                behavior and creating content that drives engagement and growth.""",
+                verbose=True,
+                allow_delegation=False,
+                tools=self._get_social_media_tools(),
+                llm=self.llm
+            )
+
             logger.info("Initialized all agent types")
             
         except Exception as e:
@@ -180,7 +193,7 @@ class AgentService:
             logger.error(f"Error initializing crews: {str(e)}")
             raise
     
-    def _get_general_tools(self) -> List[BaseTool]:
+    def _get_general_tools(self) -> List:
         """Get tools for general agent"""
         return [
             web_search_tool,
@@ -188,8 +201,8 @@ class AgentService:
             time_analysis_tool,
             knowledge_search_tool
         ]
-    
-    def _get_research_tools(self) -> List[BaseTool]:
+
+    def _get_research_tools(self) -> List:
         """Get tools for research agent"""
         return [
             web_search_tool,
@@ -197,8 +210,8 @@ class AgentService:
             document_analysis_tool,
             data_extraction_tool
         ]
-    
-    def _get_scheduling_tools(self) -> List[BaseTool]:
+
+    def _get_scheduling_tools(self) -> List:
         """Get tools for scheduling agent"""
         return [
             calendar_analysis_tool,
@@ -206,14 +219,25 @@ class AgentService:
             productivity_suggestions_tool,
             schedule_optimization_tool
         ]
-    
-    def _get_document_tools(self) -> List[BaseTool]:
+
+    def _get_document_tools(self) -> List:
         """Get tools for document analysis agent"""
         return [
             document_analysis_tool,
             content_extraction_tool,
             summary_generation_tool,
             knowledge_search_tool
+        ]
+
+    def _get_social_media_tools(self) -> List:
+        """Get tools for social media agent"""
+        return [
+            content_creation_tool,
+            post_optimization_tool,
+            hashtag_research_tool,
+            engagement_analysis_tool,
+            scheduling_tool,
+            linkedin_posting_tool
         ]
     
     async def execute_task(
@@ -358,7 +382,8 @@ class AgentService:
                     "role": agent.role,
                     "goal": agent.goal,
                     "tools_count": len(agent.tools),
-                    "status": "active"
+                    "status": "active",
+                    "backstory": agent.backstory
                 }
                 for name, agent in self.agents.items()
             },
@@ -467,4 +492,58 @@ def summary_generation_tool(content: str) -> str:
         return f"Summary:\n[This would contain a concise summary]"
     except Exception as e:
         return f"Error generating summary: {str(e)}"
+
+@tool
+def content_creation_tool(topic: str, platform: str = "linkedin", tone: str = "professional") -> str:
+    """Create engaging social media content"""
+    try:
+        # This would use AI to generate content based on topic, platform, and tone
+        return f"Generated {tone} content for {platform} about: {topic}\n[This would contain actual generated content]"
+    except Exception as e:
+        return f"Error creating content: {str(e)}"
+
+@tool
+def post_optimization_tool(content: str, platform: str = "linkedin") -> str:
+    """Optimize content for better engagement"""
+    try:
+        # This would analyze and optimize the content
+        return f"Optimized content for {platform}:\n[This would contain optimized version]"
+    except Exception as e:
+        return f"Error optimizing content: {str(e)}"
+
+@tool
+def hashtag_research_tool(topic: str, count: int = 10) -> str:
+    """Research relevant hashtags for content"""
+    try:
+        # This would research trending and relevant hashtags
+        return f"Top {count} hashtags for '{topic}':\n[This would contain actual hashtag research]"
+    except Exception as e:
+        return f"Error researching hashtags: {str(e)}"
+
+@tool
+def engagement_analysis_tool(post_content: str, platform: str = "linkedin") -> str:
+    """Analyze potential engagement for content"""
+    try:
+        # This would predict engagement metrics
+        return f"Engagement analysis for {platform}:\n[This would contain engagement predictions]"
+    except Exception as e:
+        return f"Error analyzing engagement: {str(e)}"
+
+@tool
+def scheduling_tool(optimal_times: str = "business_hours") -> str:
+    """Suggest optimal posting times"""
+    try:
+        # This would suggest best times to post
+        return f"Optimal posting schedule:\n[This would contain scheduling recommendations]"
+    except Exception as e:
+        return f"Error with scheduling: {str(e)}"
+
+@tool
+def linkedin_posting_tool(content: str, scheduled_time: str = None) -> str:
+    """Post content to LinkedIn"""
+    try:
+        # This would integrate with LinkedIn API to post content
+        return f"LinkedIn post scheduled/published:\n[This would contain posting confirmation]"
+    except Exception as e:
+        return f"Error posting to LinkedIn: {str(e)}"
 
