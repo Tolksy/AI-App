@@ -3,9 +3,17 @@ services:
     name: ai-app-backend
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python smart_main.py"
+    startCommand: "python main.py"
     envVars:
       - key: ENVIRONMENT
         value: production
       - key: HOST
         value: 0.0.0.0
+      - key: OPENAI_API_KEY
+        fromSecret: openai-api-key
+      - key: ANTHROPIC_API_KEY
+        fromSecret: anthropic-api-key
+      - key: DEFAULT_LLM_PROVIDER
+        value: openai
+      - key: DEFAULT_MODEL
+        value: gpt-4-turbo-preview
