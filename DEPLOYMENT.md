@@ -51,8 +51,6 @@ Once deployed, your RAG-based AI system will be available at:
 ✅ **Document Management**: Upload and search documents
 ✅ **Knowledge Base**: Semantic search across documents
 
-## 🆘 Troubleshooting
-
 ### Common Issues
 1. **API Key Error**: Make sure you have a valid OpenAI or Anthropic API key
 2. **Port Conflicts**: Change ports in docker-compose.yml if needed
@@ -77,5 +75,3 @@ Your RAG-based Agentic AI system is now live and ready to use!
 
 
 
-=======
->>>>>>> Incoming (Background Agent changes)
