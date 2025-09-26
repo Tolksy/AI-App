@@ -27,29 +27,45 @@ If you need API features, deploy the FastAPI backend separately using the backen
 
 ### Quick start (local)
 ```bash
-cd backend
-pip install -r requirements.txt
-python main.py
-# API available at http://localhost:8000 (docs at /docs)
+# At least one API key is required
+OPENAI_API_KEY=your_openai_api_key_here
+# OR
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+
+# Security
+SECRET_KEY=your-secret-key-here
 ```
 
-### Environment variables
-Create `.env` for the backend and set required keys as needed by your chosen features (e.g. `OPENAI_API_KEY`). See `env.example` for guidance.
+## 🌐 Live Demo URLs
 
-## Troubleshooting
-- 404s on GitHub Pages: ensure `base` in `vite.config.js` matches repo name and workflow uploads `./dist`.
-- Wrong API URL in production: update `src/config/api.js` `production.backendUrl`.
-- Do not commit `dist/`: CI builds artifacts; keep repo clean.
+Once deployed, your RAG-based AI system will be available at:
+- **Frontend**: Your deployed URL
+- **Backend API**: Your deployed URL + /api/v1
+- **API Documentation**: Your deployed URL + /docs
 
+## 🎯 Features Available
 
+✅ **RAG-powered Chat**: Upload documents and chat with AI
+✅ **Smart Scheduling**: AI-powered schedule optimization
+✅ **Autonomous Agents**: Multi-agent task execution
+✅ **Document Management**: Upload and search documents
+✅ **Knowledge Base**: Semantic search across documents
 
+## 🆘 Troubleshooting
 
+### Common Issues
+1. **API Key Error**: Make sure you have a valid OpenAI or Anthropic API key
+2. **Port Conflicts**: Change ports in docker-compose.yml if needed
+3. **Memory Issues**: Increase Docker memory allocation
+4. **Network Issues**: Check firewall settings
 
+### Support
+- Check logs: `docker-compose logs -f`
+- Restart services: `docker-compose restart`
+- Full reset: `docker-compose down && docker-compose up -d`
 
+## 🎉 Success!
 
-
-
-<<<<<<< Current (Your changes)
 Your RAG-based Agentic AI system is now live and ready to use!
 
 
