@@ -1,114 +1,55 @@
-# 🚀 Quick Deployment Guide
+# 🚀 Deployment Guide (GitHub Pages + optional backend)
 
-## Option 1: Local Development (Fastest)
+## Frontend (GitHub Pages)
 
-### Prerequisites
-- Python 3.8+ installed
-- Node.js 16+ installed
-- Git installed
+The frontend is deployed automatically via GitHub Actions to GitHub Pages.
 
-### Steps
-1. **Get API Keys** (Required):
-   - OpenAI: https://platform.openai.com/api-keys
-   - Anthropic: https://console.anthropic.com/ (Alternative)
+### Requirements
+- Node.js 18+
+- GitHub repository with Pages enabled (Source: GitHub Actions)
 
-2. **Run the application**:
-   ```bash
-   # On Windows
-   start-local.bat
-   
-   # On Mac/Linux
-   ./start-local.sh
-   ```
+### How it works
+- Workflow: `.github/workflows/deploy.yml`
+- Build: `npm ci && npm run build`
+- Output: `dist/` (not committed; built in CI)
+- Base path: set in `vite.config.js` as `/AI-App/`
 
-3. **Access your app**:
-   - Frontend: http://localhost:5173
-   - Backend: http://localhost:8000
-   - API Docs: http://localhost:8000/docs
-
-## Option 2: Docker Deployment
-
-### Prerequisites
-- Docker installed
-- Docker Compose installed
-
-### Steps
-1. **Set up environment**:
-   ```bash
-   cp env.example .env
-   # Edit .env with your API keys
-   ```
-
-2. **Deploy**:
-   ```bash
-   ./deploy.sh
-   ```
-
-3. **Access your app**:
-   - Frontend: http://localhost:3000
-   - Backend: http://localhost:8000
-
-## Option 3: Cloud Deployment
-
-### Railway (Recommended)
-1. Push to GitHub
-2. Connect to Railway
-3. Add environment variables
-4. Deploy automatically
-
-### Render
-1. Connect GitHub repository
-2. Add environment variables
-3. Deploy with render.yaml
-
-### Heroku
-1. Install Heroku CLI
-2. Create Heroku app
-3. Add environment variables
-4. Deploy with Procfile
-
-## 🔑 Required Environment Variables
-
+### Local development
 ```bash
-# At least one API key is required
-OPENAI_API_KEY=your_openai_api_key_here
-# OR
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-
-# Security
-SECRET_KEY=your-secret-key-here
+npm install
+npm run dev
+# App opens at http://localhost:3000
 ```
 
-## 🌐 Live Demo URLs
+## Backend (optional)
 
-Once deployed, your RAG-based AI system will be available at:
-- **Frontend**: Your deployed URL
-- **Backend API**: Your deployed URL + /api/v1
-- **API Documentation**: Your deployed URL + /docs
+If you need API features, deploy the FastAPI backend separately using the backend folder. You can use Render, Railway, or your own infrastructure. The frontend `src/config/api.js` points production to the configured backend URL.
 
-## 🎯 Features Available
+### Quick start (local)
+```bash
+cd backend
+pip install -r requirements.txt
+python main.py
+# API available at http://localhost:8000 (docs at /docs)
+```
 
-✅ **RAG-powered Chat**: Upload documents and chat with AI
-✅ **Smart Scheduling**: AI-powered schedule optimization
-✅ **Autonomous Agents**: Multi-agent task execution
-✅ **Document Management**: Upload and search documents
-✅ **Knowledge Base**: Semantic search across documents
+### Environment variables
+Create `.env` for the backend and set required keys as needed by your chosen features (e.g. `OPENAI_API_KEY`). See `env.example` for guidance.
 
-## 🆘 Troubleshooting
+## Troubleshooting
+- 404s on GitHub Pages: ensure `base` in `vite.config.js` matches repo name and workflow uploads `./dist`.
+- Wrong API URL in production: update `src/config/api.js` `production.backendUrl`.
+- Do not commit `dist/`: CI builds artifacts; keep repo clean.
 
-### Common Issues
-1. **API Key Error**: Make sure you have a valid OpenAI or Anthropic API key
-2. **Port Conflicts**: Change ports in docker-compose.yml if needed
-3. **Memory Issues**: Increase Docker memory allocation
-4. **Network Issues**: Check firewall settings
 
-### Support
-- Check logs: `docker-compose logs -f`
-- Restart services: `docker-compose restart`
-- Full reset: `docker-compose down && docker-compose up -d`
 
-## 🎉 Success!
 
+
+
+
+
+
+<<<<<<< Current (Your changes)
 Your RAG-based Agentic AI system is now live and ready to use!
 
 
@@ -119,3 +60,6 @@ Your RAG-based Agentic AI system is now live and ready to use!
 
 
 
+
+=======
+>>>>>>> Incoming (Background Agent changes)

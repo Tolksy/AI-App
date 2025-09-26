@@ -13,8 +13,8 @@ from pathlib import Path
 import mimetypes
 
 from fastapi import UploadFile
-from langchain.document_loaders import (
-    PyPDFLoader, TextLoader, Docx2txtLoader, 
+from langchain_community.document_loaders import (
+    PyPDFLoader, TextLoader, Docx2txtLoader,
     UnstructuredHTMLLoader, CSVLoader, JSONLoader
 )
 from langchain.schema import Document

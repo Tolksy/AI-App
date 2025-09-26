@@ -9,12 +9,12 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
 
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma, FAISS
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma, FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
-from langchain.chat_models import ChatOpenAI
+from langchain_community.llms import OpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 from langchain.memory import ConversationBufferMemory

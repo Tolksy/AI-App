@@ -86,11 +86,10 @@ npm run dev
 
 ## 🚀 Deployment
 
-The application is ready for deployment to:
-- **Heroku**: Use the included `Procfile`
-- **Railway**: Use the included `railway.json`
-- **Render**: Use the included `render.yaml`
-- **Docker**: Use the included `docker-compose.yml`
+- **Frontend**: Deployed automatically to GitHub Pages via `.github/workflows/deploy.yml`.
+- **Backend (optional)**: Deploy `backend/` to your preferred platform (Render/Railway/etc.). Update `src/config/api.js` with the production API URL.
+
+See `DEPLOYMENT.md` for details.
 
 ## 📊 Key Metrics
 
